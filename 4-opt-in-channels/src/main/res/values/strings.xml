@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TV Recommendations</string>
+    <string name="channel_added">Channel added</string>
+    <string name="channel_not_added">Channel not added</string>
+</resources>
