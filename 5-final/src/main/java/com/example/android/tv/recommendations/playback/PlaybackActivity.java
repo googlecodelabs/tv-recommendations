@@ -15,6 +15,7 @@
 package com.example.android.tv.recommendations.playback;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.MediaPlayer;
@@ -22,21 +23,30 @@ import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.media.tv.TvContractCompat;
+import android.support.media.tv.WatchNextProgram;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.VideoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.example.android.tv.recommendations.R;
+import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
 
-/** PlaybackOverlayActivity for video playback that loads PlaybackOverlayFragment. */
-public class PlaybackOverlayActivity extends Activity
-        implements PlaybackOverlayFragment.OnPlayPauseClickedListener {
-    private static final String TAG = "PlaybackOverlayActivity";
+/** Handles video playback and loads PlaybackFragment. */
+public class PlaybackActivity extends Activity
+        implements PlaybackFragment.OnPlayPauseClickedListener {
 
-    public static final String MOVIE = "Movie";
+    private static final String TAG = "PlaybackActivity";
+
+    public static final String EXTRA_MOVIE = "com.example.android.tv.recommendations.MOVIE";
+    public static final String EXTRA_CHANNEL_ID =
+            "com.example.android.tv.recommendations.CHANNEL_ID";
 
     @IntDef({STATE_PLAYING, STATE_PAUSED, STATE_BUFFERING, STATE_IDLE})
     private @interface LeanbackPlaybackState {}
@@ -49,6 +59,8 @@ public class PlaybackOverlayActivity extends Activity
     private VideoView mVideoView;
     private @LeanbackPlaybackState int mPlaybackState = STATE_IDLE;
     private MediaSession mSession;
+    private long mChannelId;
+    private long mMovieId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,6 +75,10 @@ public class PlaybackOverlayActivity extends Activity
                         | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         mSession.setActive(true);
+
+        mChannelId = getIntent().getLongExtra(EXTRA_CHANNEL_ID, -1L);
+        Movie movie = (Movie) getIntent().getSerializableExtra(EXTRA_MOVIE);
+        mMovieId = movie.getId();
     }
 
     @Override
@@ -92,21 +108,21 @@ public class PlaybackOverlayActivity extends Activity
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        PlaybackOverlayFragment playbackOverlayFragment =
-                (PlaybackOverlayFragment)
+        PlaybackFragment playbackFragment =
+                (PlaybackFragment)
                         getFragmentManager().findFragmentById(R.id.playback_controls_fragment);
         switch (keyCode) {
             case KeyEvent.KEYCODE_MEDIA_PLAY:
-                playbackOverlayFragment.togglePlayback(false);
+                playbackFragment.togglePlayback(false);
                 return true;
             case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                playbackOverlayFragment.togglePlayback(false);
+                playbackFragment.togglePlayback(false);
                 return true;
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 if (mPlaybackState == STATE_PLAYING) {
-                    playbackOverlayFragment.togglePlayback(false);
+                    playbackFragment.togglePlayback(false);
                 } else {
-                    playbackOverlayFragment.togglePlayback(true);
+                    playbackFragment.togglePlayback(true);
                 }
                 return true;
             default:
@@ -116,6 +132,7 @@ public class PlaybackOverlayActivity extends Activity
 
     /** Implementation of OnPlayPauseClickedListener. */
     public void onFragmentPlayPause(Movie movie, int position, Boolean playPause) {
+        mMovieId = movie.getId();
         mVideoView.setVideoPath(movie.getVideoUrl());
 
         if (position == 0 || mPlaybackState == STATE_IDLE) {
@@ -135,6 +152,7 @@ public class PlaybackOverlayActivity extends Activity
         }
         updatePlaybackState(position);
         updateMetadata(movie);
+        updateWatchNext(movie, position);
     }
 
     private void updatePlaybackState(int position) {
@@ -189,6 +207,96 @@ public class PlaybackOverlayActivity extends Activity
                         });
     }
 
+    private void updateWatchNext(Movie movie, int position) {
+        Log.d(TAG, String.format("Updating the movie (%d) in watch next.", movie.getId()));
+
+        Movie entity = MockDatabase.findMovieById(this, mChannelId, movie.getId());
+        if (entity == null) {
+            Log.e(
+                    TAG,
+                    String.format(
+                            "Could not find movie in channel: channel id: %d, movie id: %d",
+                            mChannelId, movie.getId()));
+            return;
+        }
+
+        if (entity.getWatchNextId() < 1L) {
+            // Need to create program.
+            WatchNextProgram program = createWatchNextProgram(entity, position);
+            Uri watchNextProgramUri =
+                    getContentResolver()
+                            .insert(
+                                    TvContractCompat.WatchNextPrograms.CONTENT_URI,
+                                    program.toContentValues());
+            long watchNextId = ContentUris.parseId(watchNextProgramUri);
+            entity.setWatchNextId(watchNextId);
+            MockDatabase.saveMovie(this, mChannelId, entity);
+
+            Log.d(TAG, "Watch Next program added: " + watchNextId);
+        } else {
+            // Update the progress and last engagement time of the program.
+            WatchNextProgram program = createWatchNextProgram(entity, position);
+            getContentResolver()
+                    .update(
+                            TvContractCompat.buildWatchNextProgramUri(entity.getWatchNextId()),
+                            program.toContentValues(),
+                            null,
+                            null);
+
+            Log.d(TAG, "Watch Next program updated: " + entity.getWatchNextId());
+        }
+    }
+
+    @NonNull
+    private WatchNextProgram createWatchNextProgram(Movie movie, int position) {
+        Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
+
+        Uri appLinkUri =
+                Uri.parse(
+                        getString(
+                                R.string.app_link_play,
+                                getString(R.string.schema),
+                                getString(R.string.host),
+                                mChannelId,
+                                movie.getTitle()));
+
+        String title = movie.getTitle();
+
+        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
+        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
+                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+                .setLastEngagementTimeUtcMillis(SystemClock.currentThreadTimeMillis())
+                .setLastPlaybackPositionMillis(position)
+                .setDurationMillis((int) movie.getDuration())
+                .setTitle(title)
+                .setDescription(movie.getDescription())
+                .setPosterArtUri(posterArtUri)
+                .setIntentUri(appLinkUri);
+
+        return builder.build();
+    }
+
+    private void removeFromWatchNext() {
+
+        Movie movie = MockDatabase.findMovieById(this, mChannelId, mMovieId);
+        if (movie == null || movie.getWatchNextId() < 1L) {
+            Log.d(TAG, "No program to remove from watch next.");
+            return;
+        }
+
+        int rows =
+                getContentResolver()
+                        .delete(
+                                TvContractCompat.buildWatchNextProgramUri(movie.getWatchNextId()),
+                                null,
+                                null);
+        Log.d(TAG, String.format("Deleted %d programs(s) from watch next", rows));
+
+        // Sync our records with the system.
+        movie.setWatchNextId(-1);
+        MockDatabase.saveMovie(this, mChannelId, movie);
+    }
+
     private void loadViews() {
         mVideoView = (VideoView) findViewById(R.id.video_view);
         mVideoView.setFocusable(false);
@@ -231,6 +339,7 @@ public class PlaybackOverlayActivity extends Activity
                     @Override
                     public void onCompletion(MediaPlayer mp) {
                         mPlaybackState = STATE_IDLE;
+                        removeFromWatchNext();
                     }
                 });
     }

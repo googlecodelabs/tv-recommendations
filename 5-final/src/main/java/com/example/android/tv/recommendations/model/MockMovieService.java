@@ -16,6 +16,7 @@ package com.example.android.tv.recommendations.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /** Mocks gathering movies from an external source. */
 public final class MockMovieService {
@@ -86,6 +87,13 @@ public final class MockMovieService {
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Fiber%20to%20the%20Pole/card.jpg",
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Nose/card.jpg"
         };
+        long duration[] = {
+            TimeUnit.SECONDS.toSeconds(173),
+            TimeUnit.SECONDS.toSeconds(67),
+            TimeUnit.SECONDS.toSeconds(107),
+            TimeUnit.SECONDS.toSeconds(131),
+            TimeUnit.SECONDS.toSeconds(122)
+        };
 
         list.add(
                 buildMovieInfo(
@@ -95,7 +103,8 @@ public final class MockMovieService {
                         "Studio Zero",
                         videoUrl[0],
                         cardImageUrl[0],
-                        bgImageUrl[0]));
+                        bgImageUrl[0],
+                        duration[0]));
         list.add(
                 buildMovieInfo(
                         "category",
@@ -104,7 +113,8 @@ public final class MockMovieService {
                         "Studio One",
                         videoUrl[1],
                         cardImageUrl[1],
-                        bgImageUrl[1]));
+                        bgImageUrl[1],
+                        duration[1]));
         list.add(
                 buildMovieInfo(
                         "category",
@@ -113,7 +123,8 @@ public final class MockMovieService {
                         "Studio Two",
                         videoUrl[2],
                         cardImageUrl[2],
-                        bgImageUrl[2]));
+                        bgImageUrl[2],
+                        duration[2]));
         list.add(
                 buildMovieInfo(
                         "category",
@@ -122,7 +133,8 @@ public final class MockMovieService {
                         "Studio Three",
                         videoUrl[3],
                         cardImageUrl[3],
-                        bgImageUrl[3]));
+                        bgImageUrl[3],
+                        duration[3]));
         list.add(
                 buildMovieInfo(
                         "category",
@@ -131,7 +143,8 @@ public final class MockMovieService {
                         "Studio Four",
                         videoUrl[4],
                         cardImageUrl[4],
-                        bgImageUrl[4]));
+                        bgImageUrl[4],
+                        duration[4]));
 
         return list;
     }
@@ -143,7 +156,8 @@ public final class MockMovieService {
             String studio,
             String videoUrl,
             String cardImageUrl,
-            String bgImageUrl) {
+            String bgImageUrl,
+            long duration) {
         Movie movie = new Movie();
         movie.setId(count);
         incCount();
@@ -154,6 +168,7 @@ public final class MockMovieService {
         movie.setCardImageUrl(cardImageUrl);
         movie.setBackgroundImageUrl(bgImageUrl);
         movie.setVideoUrl(videoUrl);
+        movie.setDuration(duration);
         return movie;
     }
 

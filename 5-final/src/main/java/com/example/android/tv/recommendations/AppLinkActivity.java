@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;
-import com.example.android.tv.recommendations.playback.PlaybackOverlayActivity;
+import com.example.android.tv.recommendations.playback.PlaybackActivity;
 import java.util.List;
 
 /**
@@ -71,8 +71,9 @@ public class AppLinkActivity extends Activity {
                 return;
             }
 
-            Intent playMovieIntent = new Intent(this, PlaybackOverlayActivity.class);
-            playMovieIntent.putExtra(PlaybackOverlayActivity.MOVIE, movie);
+            Intent playMovieIntent = new Intent(this, PlaybackActivity.class);
+            playMovieIntent.putExtra(PlaybackActivity.EXTRA_MOVIE, movie);
+            playMovieIntent.putExtra(PlaybackActivity.EXTRA_CHANNEL_ID, channelId);
             startActivity(playMovieIntent);
         } else if (option.equals(getString(R.string.view)) && segments.size() == 2) {
             String name = segments.get(1);

@@ -16,7 +16,6 @@ package com.example.android.tv.recommendations;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.ContentUris;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.PersistableBundle;
@@ -24,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.media.tv.Channel;
 import android.support.media.tv.PreviewProgram;
 import android.support.media.tv.TvContractCompat;
-import android.support.media.tv.WatchNextProgram;
 import android.util.Log;
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.MockMovieService;
@@ -54,14 +52,6 @@ public class RecommendationProgramsJobService extends JobService {
 
         syncPrograms(channelId);
 
-        //TODO: Move into onPause of PlayOverlayActivity
-        WatchNextProgram program = createWatchNextProgram(MockMovieService.getList().get(0));
-        Uri watchNextProgramUri =
-                getContentResolver()
-                        .insert(
-                                TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                                program.toContentValues());
-
         // Daisy chain listening for the next change.
         TvUtil.scheduleSyncingProgramsForChannel(this, channelId);
         return false;
@@ -79,26 +69,6 @@ public class RecommendationProgramsJobService extends JobService {
         }
 
         return extras.getLong(TvContractCompat.EXTRA_CHANNEL_ID, -1L);
-    }
-
-    @NonNull
-    private WatchNextProgram createWatchNextProgram(Movie movie) {
-        Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
-
-        Uri appLinkUri = new Intent().getData();
-
-        String title = movie.getTitle();
-
-        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
-                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_NEXT)
-                .setTitle(title)
-                .setDescription(movie.getDescription())
-                .setPosterArtUri(posterArtUri)
-                .setIntentUri(appLinkUri)
-                .setInternalProviderId("2");
-
-        return builder.build();
     }
 
     private void syncPrograms(long channelId) {

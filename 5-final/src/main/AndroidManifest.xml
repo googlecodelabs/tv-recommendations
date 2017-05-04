@@ -62,7 +62,7 @@
                     android:scheme="@string/schema" />
             </intent-filter>
         </activity>
-        <activity android:name=".playback.PlaybackOverlayActivity" />
+        <activity android:name=".playback.PlaybackActivity" />
 
         <receiver android:name=".InitializeChannelsReceiver">
             <intent-filter>

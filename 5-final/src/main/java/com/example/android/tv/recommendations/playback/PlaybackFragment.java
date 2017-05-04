@@ -16,7 +16,6 @@ package com.example.android.tv.recommendations.playback;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
@@ -59,14 +58,14 @@ import java.util.List;
 /*
  * Handles video playback with media controls.
  */
-public class PlaybackOverlayFragment
-        extends android.support.v17.leanback.app.PlaybackOverlayFragment {
-    private static final String TAG = "PlaybackControlsFragmnt";
+public class PlaybackFragment extends android.support.v17.leanback.app.PlaybackOverlayFragment {
+
+    private static final String TAG = "PlaybackCtrlsFragment";
 
     private static final boolean HIDE_MORE_ACTIONS = false;
     private static final int PRIMARY_CONTROLS = 5;
     private static final boolean SHOW_IMAGE = PRIMARY_CONTROLS <= 5;
-    private static final int BACKGROUND_TYPE = PlaybackOverlayFragment.BG_LIGHT;
+    private static final int BACKGROUND_TYPE = PlaybackFragment.BG_LIGHT;
     private static final int CARD_WIDTH = 200;
     private static final int CARD_HEIGHT = 240;
     private static final int DEFAULT_UPDATE_PERIOD = 1000;
@@ -108,7 +107,7 @@ public class PlaybackOverlayFragment
                 (Movie)
                         getActivity()
                                 .getIntent()
-                                .getSerializableExtra(PlaybackOverlayActivity.MOVIE);
+                                .getSerializableExtra(PlaybackActivity.EXTRA_MOVIE);
 
         List<Movie> movies = MockMovieService.getList();
 
@@ -224,11 +223,7 @@ public class PlaybackOverlayFragment
     private int getDuration() {
         Movie movie = mItems.get(mCurrentItem);
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            mmr.setDataSource(movie.getVideoUrl(), new HashMap<String, String>());
-        } else {
-            mmr.setDataSource(movie.getVideoUrl());
-        }
+        mmr.setDataSource(movie.getVideoUrl(), new HashMap<String, String>());
         String time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         long duration = Long.parseLong(time);
         return (int) duration;

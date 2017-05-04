@@ -154,6 +154,35 @@ public final class MockDatabase {
         SharedPreferencesHelper.storeMovies(context, channelId, programs);
     }
 
+    /**
+     * Finds movie in subscriptions with channel id and updates it. Otherwise will add the new movie
+     * to the subscription.
+     *
+     * @param context to access shared preferences.
+     * @param channelId of the subscription that the movie is associated with.
+     * @param movie to be persisted or updated.
+     */
+    public static void saveMovie(Context context, long channelId, Movie movie) {
+        List<Movie> movies = getMovies(context, channelId);
+        int index = findMovie(movies, movie);
+        if (index == -1) {
+            movies.add(movie);
+        } else {
+            movies.set(index, movie);
+        }
+        saveMovies(context, channelId, movies);
+    }
+
+    private static int findMovie(List<Movie> movies, Movie movie) {
+        for (int index = 0; index < movies.size(); ++index) {
+            Movie current = movies.get(index);
+            if (current.getId() == movie.getId()) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
     public static List<Movie> getMovies(Context context, long channelId) {
         return SharedPreferencesHelper.readMovies(context, channelId);
     }
@@ -162,6 +191,16 @@ public final class MockDatabase {
     public static Movie findMovieByTitle(Context context, long channelId, String title) {
         for (Movie movie : getMovies(context, channelId)) {
             if (movie.getTitle().equals(title)) {
+                return movie;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static Movie findMovieById(Context context, long channelId, long movieId) {
+        for (Movie movie : getMovies(context, channelId)) {
+            if (movie.getId() == movieId) {
                 return movie;
             }
         }

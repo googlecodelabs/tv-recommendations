@@ -46,8 +46,6 @@ public class TvUtil {
         builder.setType(TvContractCompat.Channels.TYPE_PREVIEW)
                 .setDisplayName(subscription.getName())
                 .setDescription(subscription.getDescription())
-                //TODO: follow up with isaackatz@. I thought this was not required anymore
-                .setInputId("input_id")
                 .setAppLinkIntentUri(appLinkIntentUri);
 
         Log.d(TAG, "Creating channel: " + subscription.getName());
