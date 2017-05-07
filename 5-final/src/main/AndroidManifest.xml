@@ -56,10 +56,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <!-- Accepts URIs that begin with "tvrecommendation://app". -->
                 <data
-                    android:host="@string/host"
-                    android:scheme="@string/schema" />
+                    android:host="app"
+                    android:scheme="tvrecommendation" />
             </intent-filter>
         </activity>
         <activity android:name=".playback.PlaybackActivity" />

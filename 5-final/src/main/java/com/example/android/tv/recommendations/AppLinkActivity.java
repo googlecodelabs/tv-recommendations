@@ -19,17 +19,22 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.playback.PlaybackActivity;
-import java.util.List;
+import com.example.android.tv.recommendations.util.AppLinkHelper;
 
 /**
  * Delegates to the correct activity based on how the user entered the app.
+ *
+ * <p>
+ *
+ * <p>
+ *
+ * <p>
  *
  * <p>Supports two options: view and play. The view option will open the channel for the user to be
  * able to view more programs. The play option will load the channel/program,
@@ -40,54 +45,78 @@ public class AppLinkActivity extends Activity {
     private static final String TAG = "AppLinkActivity";
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        Uri data = intent.getData();
+        Uri uri = intent.getData();
 
-        Log.d(TAG, data.toString());
+        Log.v(TAG, uri.toString());
 
-        List<String> segments = data.getPathSegments();
-        if (segments.isEmpty()) {
-            Log.e(TAG, "Invalid data " + data);
+        if (uri.getPathSegments().isEmpty()) {
+            Log.e(TAG, "Invalid uri " + uri);
             finish();
             return;
         }
 
-        String option = segments.get(0);
-        if (option.equals(getString(R.string.play)) && segments.size() == 3) {
-            long channelId = Long.parseLong(segments.get(1));
-            String movieTitle = segments.get(2);
-            Log.d(
-                    TAG,
-                    String.format("Playing program '%s' from channel %d", movieTitle, channelId));
+        AppLinkHelper.AppLinkAction action = AppLinkHelper.extractAction(uri);
+        switch (action.getAction()) {
+            case AppLinkHelper.PLAYBACK:
+                play((AppLinkHelper.PlaybackAction) action);
+                break;
+            case AppLinkHelper.BROWSE:
+                browse((AppLinkHelper.BrowseAction) action);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid Action " + action);
+        }
+    }
 
-            Movie movie =
-                    MockDatabase.findMovieByTitle(getApplicationContext(), channelId, movieTitle);
-            if (movie == null) {
-                Log.e(TAG, "Invalid program " + data);
-                finish();
-                return;
-            }
-
-            Intent playMovieIntent = new Intent(this, PlaybackActivity.class);
-            playMovieIntent.putExtra(PlaybackActivity.EXTRA_MOVIE, movie);
-            playMovieIntent.putExtra(PlaybackActivity.EXTRA_CHANNEL_ID, channelId);
-            startActivity(playMovieIntent);
-        } else if (option.equals(getString(R.string.view)) && segments.size() == 2) {
-            String name = segments.get(1);
-
-            Subscription subscription =
-                    MockDatabase.findSubscriptionByName(getApplicationContext(), name);
-            if (subscription == null) {
-                Log.e(TAG, "Invalid channel " + data);
-                finish();
-                return;
-            }
-            //TODO: open up an activity that has the subscription data and movies
-            Toast.makeText(this, subscription.getName(), Toast.LENGTH_LONG).show();
+    private void browse(AppLinkHelper.BrowseAction action) {
+        Subscription subscription =
+                MockDatabase.findSubscriptionByName(this, action.getSubscriptionName());
+        if (subscription == null) {
+            Log.e(TAG, "Invalid subscription " + action.getSubscriptionName());
+        } else {
+            // TODO: Open an activity that has the movies for the subscription.
+            Toast.makeText(this, action.getSubscriptionName(), Toast.LENGTH_LONG).show();
         }
         finish();
+    }
+
+    private void play(AppLinkHelper.PlaybackAction action) {
+        if (action.getPosition() == AppLinkHelper.DEFAULT_POSITION) {
+            Log.d(
+                    TAG,
+                    "Playing program "
+                            + action.getMovieId()
+                            + " from channel "
+                            + action.getChannelId());
+        } else {
+            Log.d(
+                    TAG,
+                    "Continuing program "
+                            + action.getMovieId()
+                            + " from channel "
+                            + action.getChannelId()
+                            + " at time "
+                            + action.getPosition());
+        }
+
+        Movie movie = MockDatabase.findMovieById(this, action.getChannelId(), action.getMovieId());
+        if (movie == null) {
+            Log.e(TAG, "Invalid program " + action.getMovieId());
+        } else {
+            startPlaying(action.getChannelId(), movie, action.getPosition());
+        }
+        finish();
+    }
+
+    private void startPlaying(long channelId, Movie movie, long position) {
+        Intent playMovieIntent = new Intent(this, PlaybackActivity.class);
+        playMovieIntent.putExtra(PlaybackActivity.EXTRA_MOVIE, movie);
+        playMovieIntent.putExtra(PlaybackActivity.EXTRA_CHANNEL_ID, channelId);
+        playMovieIntent.putExtra(PlaybackActivity.EXTRA_POSITION, position);
+        startActivity(playMovieIntent);
     }
 }

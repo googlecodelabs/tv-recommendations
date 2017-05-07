@@ -16,7 +16,6 @@ package com.example.android.tv.recommendations.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /** Mocks gathering movies from an external source. */
 public final class MockMovieService {
@@ -66,6 +65,9 @@ public final class MockMovieService {
                         + "facilisis mattis. Ut aliquet luctus lacus. Phasellus nec commodo erat. Praesent tempus id "
                         + "lectus ac scelerisque. Maecenas pretium cursus lectus id volutpat.";
 
+        String studio[] = {
+            "Studio Zero", "Studio One", "Studio Two", "Studio Three", "Studio Four"
+        };
         String videoUrl[] = {
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4",
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%2020ft%20Search.mp4",
@@ -87,64 +89,18 @@ public final class MockMovieService {
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Fiber%20to%20the%20Pole/card.jpg",
             "http://commondatastorage.googleapis.com/android-tv/Sample%20videos/April%20Fool's%202013/Introducing%20Google%20Nose/card.jpg"
         };
-        long duration[] = {
-            TimeUnit.SECONDS.toSeconds(173),
-            TimeUnit.SECONDS.toSeconds(67),
-            TimeUnit.SECONDS.toSeconds(107),
-            TimeUnit.SECONDS.toSeconds(131),
-            TimeUnit.SECONDS.toSeconds(122)
-        };
 
-        list.add(
-                buildMovieInfo(
-                        "category",
-                        title[0],
-                        description,
-                        "Studio Zero",
-                        videoUrl[0],
-                        cardImageUrl[0],
-                        bgImageUrl[0],
-                        duration[0]));
-        list.add(
-                buildMovieInfo(
-                        "category",
-                        title[1],
-                        description,
-                        "Studio One",
-                        videoUrl[1],
-                        cardImageUrl[1],
-                        bgImageUrl[1],
-                        duration[1]));
-        list.add(
-                buildMovieInfo(
-                        "category",
-                        title[2],
-                        description,
-                        "Studio Two",
-                        videoUrl[2],
-                        cardImageUrl[2],
-                        bgImageUrl[2],
-                        duration[2]));
-        list.add(
-                buildMovieInfo(
-                        "category",
-                        title[3],
-                        description,
-                        "Studio Three",
-                        videoUrl[3],
-                        cardImageUrl[3],
-                        bgImageUrl[3],
-                        duration[3]));
-        list.add(
-                buildMovieInfo(
-                        "category",
-                        title[4],
-                        description,
-                        "Studio Four",
-                        videoUrl[4],
-                        cardImageUrl[4],
-                        bgImageUrl[4],
-                        duration[4]));
+        for (int index = 0; index < title.length; ++index) {
+            list.add(
+                    buildMovieInfo(
+                            "category",
+                            title[index],
+                            description,
+                            studio[index],
+                            videoUrl[index],
+                            cardImageUrl[index],
+                            bgImageUrl[index]));
+        }
 
         return list;
     }
@@ -156,8 +112,7 @@ public final class MockMovieService {
             String studio,
             String videoUrl,
             String cardImageUrl,
-            String bgImageUrl,
-            long duration) {
+            String backgroundImageUrl) {
         Movie movie = new Movie();
         movie.setId(count);
         incCount();
@@ -166,9 +121,8 @@ public final class MockMovieService {
         movie.setStudio(studio);
         movie.setCategory(category);
         movie.setCardImageUrl(cardImageUrl);
-        movie.setBackgroundImageUrl(bgImageUrl);
+        movie.setBackgroundImageUrl(backgroundImageUrl);
         movie.setVideoUrl(videoUrl);
-        movie.setDuration(duration);
         return movie;
     }
 

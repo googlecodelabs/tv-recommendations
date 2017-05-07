@@ -32,8 +32,7 @@ public class Movie implements Serializable {
     private String videoUrl;
     private String studio;
     private String category;
-    private long duration;
-    // Program id / Watch Next id will be returned from the TV provider.
+    // Program id / Watch Next id returned from the TV Provider.
     private long programId;
     private long watchNextId;
 
@@ -119,14 +118,6 @@ public class Movie implements Serializable {
         this.category = category;
     }
 
-    public long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
     @Override
     public String toString() {
         return "Movie{"
@@ -149,9 +140,6 @@ public class Movie implements Serializable {
                 + '\''
                 + ", cardImageUrl='"
                 + cardImageUrl
-                + '\''
-                + ", duration='"
-                + duration
                 + '\''
                 + '}';
     }

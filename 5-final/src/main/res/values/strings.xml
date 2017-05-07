@@ -14,21 +14,14 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string name="app_name">TV Recommendations</string>
+    <string name="app_name">Codelab Channels and Programs</string>
 
     <string name="channel_added">Channel added</string>
     <string name="channel_not_added">Channel not added</string>
-    <string name="play">play</string>
-    <string name="view">view</string>
 
     <string name="video_error_media_load_timeout">Media loading timed out</string>
     <string name="video_error_server_inaccessible">Media server was not reachable</string>
     <string name="video_error_unknown_error">Failed to load video</string>
-
-    <string name="app_link_play">%1$s://%2$s/play/%3$d/%4$s</string>
-    <string name="app_link_view">%1$s://%2$s/view/%3$s</string>
-    <string name="schema">tvrecommendation</string>
-    <string name="host">app</string>
 
     <string name="slash">/</string>
     <string name="title_tv_shows">Your TV Shows</string>

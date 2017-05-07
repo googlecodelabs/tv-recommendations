@@ -23,7 +23,7 @@ import com.example.android.tv.recommendations.util.TvUtil;
 import java.util.List;
 
 /**
- * A service that will populate the TV provider with channels that every user should have. Once a
+ * A service that will populate the TV Provider with channels that every user should have. Once a
  * channel is created, it trigger another service to add programs.
  */
 public class RecommendationChannelJobService extends JobService {
@@ -45,8 +45,12 @@ public class RecommendationChannelJobService extends JobService {
     private void setupChannels() {
 
         List<Subscription> subscriptions = MockDatabase.getSubscriptions(getApplicationContext());
-        if (!subscriptions.isEmpty()) {
-            Log.d(TAG, "Already loaded " + subscriptions.size() + " channels into the provider");
+        int numOfChannelsInTVProvider = TvUtil.getNumberOfChannels(getApplicationContext());
+        // Checks if the default channels are added. Since a user can add more channels from your app
+        // later, the number of channels in the provider can be greater than the number of default
+        // channels.
+        if (numOfChannelsInTVProvider >= subscriptions.size() && !subscriptions.isEmpty()) {
+            Log.d(TAG, "Already loaded default channels into the provider");
         } else {
             // Create subscriptions from mocked source.
             subscriptions = MockDatabase.createUniversalSubscriptions(getApplicationContext());
