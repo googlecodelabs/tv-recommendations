@@ -66,16 +66,17 @@
         <receiver android:name=".InitializeChannelsReceiver">
             <intent-filter>
                 <action android:name="android.media.tv.action.INITIALIZE_PROGRAMS" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name=".RecommendationChannelJobService"
+            android:name=".SyncChannelJobService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <service
-            android:name=".RecommendationProgramsJobService"
+            android:name=".SyncProgramsJobService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

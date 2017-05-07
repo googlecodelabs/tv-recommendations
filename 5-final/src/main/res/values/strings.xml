@@ -14,33 +14,27 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string name="app_name">Codelab Channels and Programs</string>
+    <string name="app_name">Channels and Programs Codelab</string>
 
     <string name="channel_added">Channel added</string>
     <string name="channel_not_added">Channel not added</string>
 
-    <string name="video_error_media_load_timeout">Media loading timed out</string>
-    <string name="video_error_server_inaccessible">Media server was not reachable</string>
-    <string name="video_error_unknown_error">Failed to load video</string>
-
-    <string name="slash">/</string>
     <string name="title_tv_shows">Your TV Shows</string>
     <string name="your_videos">Your Videos</string>
-    <string name="random">Random</string>
+    <string name="cat_videos">Cat Videos</string>
     <string name="new_for_you">New for You</string>
     <string name="new_for_you_description">These are recommended programs that we think you will like.</string>
     <string name="trending_videos">Trending Videos</string>
     <string name="trending_videos_description">These are trending videos from our app.</string>
     <string name="featured_films">Featured Films</string>
     <string name="featured_films_description">These are featured films that have been rated highly from our staff.</string>
+    <string name="tv_shows">TV Shows</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="video_clips">Video Clips</string>
     <string name="tv_shows_description">These are TV shows that you have added to your TV Show List.</string>
     <string name="your_videos_description">These are videos that you have added to your Video List.</string>
-    <string name="random_description">These are random videos that you may or may not even like.</string>
+    <string name="cat_videos_description">These are cat videos that you may or may not even like.</string>
     <string name="button_instructions">Click on the buttons to see how to prompt users for dynamic channels.</string>
-    <string name="subscribe_to_tv_shows">Subscribe to TV Shows</string>
-    <string name="subscribe_to_video_clips">Subscribe to Video Clips</string>
-    <string name="subscribe_to_random_channel">Subscribe to Random Channel</string>
-    <string name="fast_forward">Fast Forward</string>
-    <string name="rewind">Rewind</string>
+    <string name="implement_movie_presenter_here">Implement movie presenter here.</string>
 
 </resources>

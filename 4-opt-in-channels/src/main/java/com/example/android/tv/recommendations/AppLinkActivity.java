@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;

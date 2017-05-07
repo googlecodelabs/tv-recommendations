@@ -14,21 +14,16 @@
 package com.example.android.tv.recommendations;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.media.tv.TvContractCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.util.TvUtil;
-import java.util.Arrays;
-import java.util.List;
+
 
 /*
  * Displays subscriptions that can be added to the main launcher's channels.
@@ -89,18 +84,8 @@ public class MainActivity extends Activity {
 
         @Override
         protected Long doInBackground(Subscription... varArgs) {
-            List<Subscription> subscriptions = Arrays.asList(varArgs);
-            if (subscriptions.size() != 1) {
-                return -1L;
-            }
-            Subscription subscription = subscriptions.get(0);
-            long channelId = TvUtil.createChannel(mContext, subscription);
-            subscription.setChannelId(channelId);
-            MockDatabase.saveSubscription(mContext, subscription);
-            // Scheduler listen on channel's uri. Updates after the user interacts with the system
-            // dialog.
-            TvUtil.scheduleSyncingProgramsForChannel(getApplicationContext(), channelId);
-            return channelId;
+            // TODO:STEP1 Create the channel in the provider.
+            return -1L;
         }
 
         @Override
@@ -111,22 +96,14 @@ public class MainActivity extends Activity {
     }
 
     private void promptUserToDisplayChannel(long channelId) {
-        Intent intent = new Intent(TvContractCompat.ACTION_REQUEST_CHANNEL_BROWSABLE);
-        intent.putExtra(TvContractCompat.EXTRA_CHANNEL_ID, channelId);
-        try {
-            this.startActivityForResult(intent, MAKE_BROWSABLE_REQUEST_CODE);
-        } catch (ActivityNotFoundException e) {
-            Log.e(TAG, "Could not start activity: " + intent.getAction(), e);
-        }
+        // TODO:STEP2 Create intent and start activity for result.
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Toast.makeText(this, R.string.channel_added, Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, R.string.channel_not_added, Toast.LENGTH_LONG).show();
-        }
+        // TODO:STEP3 Handle user's response.
+
     }
 }

@@ -35,6 +35,7 @@ import android.support.media.tv.Channel;
 import android.support.media.tv.ChannelLogoUtils;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
+
 import com.example.android.tv.recommendations.SyncChannelJobService;
 import com.example.android.tv.recommendations.SyncProgramsJobService;
 import com.example.android.tv.recommendations.model.Subscription;

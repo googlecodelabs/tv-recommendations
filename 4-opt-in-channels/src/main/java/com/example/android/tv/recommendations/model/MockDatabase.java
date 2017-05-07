@@ -18,9 +18,11 @@ import android.content.SharedPreferences;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+
 import com.example.android.tv.recommendations.R;
 import com.example.android.tv.recommendations.util.AppLinkHelper;
 import com.example.android.tv.recommendations.util.SharedPreferencesHelper;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
