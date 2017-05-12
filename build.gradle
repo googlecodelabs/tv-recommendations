@@ -16,7 +16,8 @@ allprojects {
     repositories {
         jcenter()
         maven {
-            url System.getenv('HOME') + "/Downloads/m2repository/"
+            /* Reference the preview maven repository location */
+            url new File(rootDir, "./preview/libs/m2repository")
         }
     }
 }
