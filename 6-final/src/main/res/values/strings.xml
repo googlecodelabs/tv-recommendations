@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <string name="app_name">Channels and Programs Codelab</string>
+    <string name="app_name">Codelab Channels and Programs</string>
 
     <string name="channel_added">Channel added</string>
     <string name="channel_not_added">Channel not added</string>
