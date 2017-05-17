@@ -153,21 +153,26 @@ public class SyncProgramsJobService extends JobService {
         return moviesAdded;
     }
 
-    private List<Movie> updatePrograms(long channelId, List<Movie> programs) {
-
-        // For the sake of this example, we remove and re-insert all programs.
-        // In a real production app we should first query the database and then only
-        // insert/update/remove programs that have actually changed.
-        for (Movie movie : programs) {
-            getContentResolver()
-                    .delete(
-                            TvContractCompat.buildPreviewProgramUri(movie.getProgramId()),
-                            null,
-                            null);
-        }
+    private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
 
         // By getting a fresh list, we should see a visible change in the home screen.
-        return createPrograms(channelId, MockMovieService.getFreshList());
+        List<Movie> updateMovies = MockMovieService.getFreshList();
+        for (int i = 0; i < movies.size(); ++i) {
+            Movie old = movies.get(i);
+            Movie update = updateMovies.get(i);
+            long programId = old.getProgramId();
+
+            getContentResolver()
+                    .update(
+                            TvContractCompat.buildPreviewProgramUri(programId),
+                            buildProgram(channelId, update).toContentValues(),
+                            null,
+                            null);
+            Log.d(TAG, "Updated program: " + programId);
+            update.setProgramId(programId);
+        }
+
+        return updateMovies;
     }
 
     private void deletePrograms(long channelId, List<Movie> movies) {
