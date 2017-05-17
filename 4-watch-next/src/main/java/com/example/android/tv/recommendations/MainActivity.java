@@ -24,7 +24,6 @@ import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.util.TvUtil;
 
-
 /*
  * Displays subscriptions that can be added to the main launcher's channels.
  */

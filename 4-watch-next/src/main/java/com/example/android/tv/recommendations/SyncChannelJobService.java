@@ -19,12 +19,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.MockMovieService;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.util.TvUtil;
-
 import java.util.List;
 
 /**

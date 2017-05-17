@@ -18,6 +18,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.media.tv.WatchNextProgram;
 import android.util.Log;
+
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
 

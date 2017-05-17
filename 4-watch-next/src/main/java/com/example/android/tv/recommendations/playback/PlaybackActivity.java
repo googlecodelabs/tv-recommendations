@@ -16,7 +16,6 @@ package com.example.android.tv.recommendations.playback;
 
 import android.app.Activity;
 import android.os.Bundle;
-
 import com.example.android.tv.recommendations.R;
 
 /** Loads {@link PlaybackVideoFragment}. */

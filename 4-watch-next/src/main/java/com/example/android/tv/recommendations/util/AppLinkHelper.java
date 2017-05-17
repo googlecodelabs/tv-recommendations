@@ -2,7 +2,6 @@ package com.example.android.tv.recommendations.util;
 
 import android.net.Uri;
 import android.support.annotation.StringDef;
-
 import java.util.List;
 
 /** Builds and parses uris for deep linking within the app. */

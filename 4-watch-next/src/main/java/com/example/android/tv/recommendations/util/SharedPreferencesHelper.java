@@ -18,12 +18,10 @@ package com.example.android.tv.recommendations.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
