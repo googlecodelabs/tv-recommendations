@@ -16,8 +16,10 @@ package com.example.android.tv.recommendations;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.media.tv.Channel;
@@ -28,8 +30,10 @@ import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.MockMovieService;
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;
+import com.example.android.tv.recommendations.util.AppLinkHelper;
 import com.example.android.tv.recommendations.util.TvUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,28 +42,43 @@ import java.util.List;
  */
 public class SyncProgramsJobService extends JobService {
 
-    private static final String TAG = "RecommendProgramJobSvc";
+    private static final String TAG = "SyncProgramsJobService";
+
+    private SyncProgramsTask mSyncProgramsTask;
 
     @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        Log.d(TAG, "Starting program sync job.");
+    public boolean onStartJob(final JobParameters jobParameters) {
+        Log.d(TAG, "onStartJob(): " + jobParameters);
 
-        long channelId = getChannelId(jobParameters);
+        final long channelId = getChannelId(jobParameters);
         if (channelId == -1L) {
             return false;
         }
         Log.d(TAG, "onStartJob(): Scheduling syncing for programs for channel " + channelId);
 
-        syncPrograms(channelId);
+        mSyncProgramsTask =
+                new SyncProgramsTask(getApplicationContext()) {
+                    @Override
+                    protected void onPostExecute(Boolean finished) {
+                        super.onPostExecute(finished);
+                        // Daisy chain listening for the next change to the channel.
+                        TvUtil.scheduleSyncingProgramsForChannel(
+                                SyncProgramsJobService.this, channelId);
+                        mSyncProgramsTask = null;
+                        jobFinished(jobParameters, !finished);
+                    }
+                };
+        mSyncProgramsTask.execute(channelId);
 
-        // Daisy chain listening for the next change.
-        TvUtil.scheduleSyncingProgramsForChannel(this, channelId);
-        return false;
+        return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
-        return false;
+        if (mSyncProgramsTask != null) {
+            mSyncProgramsTask.cancel(true);
+        }
+        return true;
     }
 
     private long getChannelId(JobParameters jobParameters) {
@@ -71,49 +90,52 @@ public class SyncProgramsJobService extends JobService {
         return extras.getLong(TvContractCompat.EXTRA_CHANNEL_ID, -1L);
     }
 
-    private void syncPrograms(long channelId) {
+    /*
+     * Syncs programs by querying the given channel id.
+     *
+     * If the channel is not browsable, the programs will be removed to avoid showing
+     * stale programs when the channel becomes browsable in the future.
+     *
+     * If the channel is browsable, then it will check if the channel has any programs.
+     *      If the channel does not have any programs, new programs will be added.
+     *      If the channel does have programs, then a fresh list of programs will be fetched and the
+     *          channel's programs will be updated.
+     */
+    private void syncPrograms(long channelId, List<Movie> initialMovies) {
         Log.d(TAG, "Sync programs for channel: " + channelId);
+        List<Movie> movies = new ArrayList<>(initialMovies);
 
         try (Cursor cursor =
-                getContentResolver()
-                        .query(
-                                TvContractCompat.buildChannelUri(channelId),
-                                null,
-                                null,
-                                null,
-                                null)) {
+                     getContentResolver()
+                             .query(
+                                     TvContractCompat.buildChannelUri(channelId),
+                                     null,
+                                     null,
+                                     null,
+                                     null)) {
             if (cursor != null && cursor.moveToNext()) {
                 Channel channel = Channel.fromCursor(cursor);
                 if (!channel.isBrowsable()) {
-                    Log.d(TAG, "Channel is not visible: " + channelId);
+                    Log.d(TAG, "Channel is not browsable: " + channelId);
+                    deletePrograms(channelId, movies);
                 } else {
-                    Log.d(TAG, "Channel is visible, syncing programs: " + channelId);
-                    Subscription subscription =
-                            MockDatabase.findSubscriptionByChannelId(
-                                    getApplicationContext(), channelId);
-
-                    if (subscription != null) {
-
-                        List<Movie> programs =
-                                MockDatabase.getMovies(getApplicationContext(), channelId);
-                        if (programs.isEmpty()) {
-                            programs = createPrograms(subscription, MockMovieService.getList());
-                        } else {
-                            programs = updatePrograms(subscription, programs);
-                        }
-
-                        MockDatabase.saveMovies(getApplicationContext(), channelId, programs);
+                    Log.d(TAG, "Channel is browsable: " + channelId);
+                    if (movies.isEmpty()) {
+                        movies = createPrograms(channelId, MockMovieService.getList());
+                    } else {
+                        movies = updatePrograms(channelId, movies);
                     }
+                    MockDatabase.saveMovies(getApplicationContext(), channelId, movies);
                 }
             }
         }
     }
 
-    private List<Movie> createPrograms(Subscription subscription, List<Movie> movies) {
+    private List<Movie> createPrograms(long channelId, List<Movie> movies) {
 
         List<Movie> moviesAdded = new ArrayList<>(movies.size());
         for (Movie movie : movies) {
-            PreviewProgram previewProgram = buildProgram(subscription, movie);
+            PreviewProgram previewProgram = buildProgram(channelId, movie);
 
             Uri programUri =
                     getContentResolver()
@@ -129,8 +151,11 @@ public class SyncProgramsJobService extends JobService {
         return moviesAdded;
     }
 
-    private List<Movie> updatePrograms(Subscription channel, List<Movie> programs) {
+    private List<Movie> updatePrograms(long channelId, List<Movie> programs) {
 
+        // For the sake of this example, we remove and re-insert all programs.
+        // In a real production app we should first query the database and then only
+        // insert/update/remove programs that have actually changed.
         for (Movie movie : programs) {
             getContentResolver()
                     .delete(
@@ -140,26 +165,39 @@ public class SyncProgramsJobService extends JobService {
         }
 
         // By getting a fresh list, we should see a visible change in the home screen.
-        return createPrograms(channel, MockMovieService.getFreshList());
+        return createPrograms(channelId, MockMovieService.getFreshList());
+    }
+
+    private void deletePrograms(long channelId, List<Movie> movies) {
+        if (movies.isEmpty()) {
+            return;
+        }
+
+        int count = 0;
+        for (Movie movie : movies) {
+            count +=
+                    getContentResolver()
+                            .delete(
+                                    TvContractCompat.buildPreviewProgramUri(movie.getProgramId()),
+                                    null,
+                                    null);
+        }
+        Log.d(TAG, "Deleted " + count + " programs for  channel " + channelId);
+
+        // Remove our local records to stay in sync with the TV Provider.
+        MockDatabase.removeMovies(getApplicationContext(), channelId);
     }
 
     @NonNull
-    private PreviewProgram buildProgram(Subscription subscription, Movie movie) {
+    private PreviewProgram buildProgram(long channelId, Movie movie) {
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
 
-        Uri appLinkUri =
-                Uri.parse(
-                        getString(
-                                R.string.app_link_play,
-                                getString(R.string.schema),
-                                getString(R.string.host),
-                                subscription.getChannelId(),
-                                movie.getTitle()));
+        Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
 
         String title = movie.getTitle();
 
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
-        builder.setChannelId(subscription.getChannelId())
+        builder.setChannelId(channelId)
                 .setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
                 .setTitle(title)
                 .setDescription(movie.getDescription())
@@ -167,5 +205,30 @@ public class SyncProgramsJobService extends JobService {
                 .setPreviewVideoUri(Uri.parse(movie.getVideoUrl()))
                 .setIntentUri(appLinkUri);
         return builder.build();
+    }
+
+    private class SyncProgramsTask extends AsyncTask<Long, Void, Boolean> {
+
+        private final Context mContext;
+
+        private SyncProgramsTask(Context context) {
+            this.mContext = context;
+        }
+
+        @Override
+        protected Boolean doInBackground(Long... channelIds) {
+            List<Long> params = Arrays.asList(channelIds);
+            if (!params.isEmpty()) {
+                for (Long channelId : params) {
+                    Subscription subscription =
+                            MockDatabase.findSubscriptionByChannelId(mContext, channelId);
+                    if (subscription != null) {
+                        List<Movie> cachedMovies = MockDatabase.getMovies(mContext, channelId);
+                        syncPrograms(channelId, cachedMovies);
+                    }
+                }
+            }
+            return true;
+        }
     }
 }
