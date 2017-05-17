@@ -108,13 +108,13 @@ public class SyncProgramsJobService extends JobService {
         List<Movie> movies = new ArrayList<>(initialMovies);
 
         try (Cursor cursor =
-                     getContentResolver()
-                             .query(
-                                     TvContractCompat.buildChannelUri(channelId),
-                                     null,
-                                     null,
-                                     null,
-                                     null)) {
+                getContentResolver()
+                        .query(
+                                TvContractCompat.buildChannelUri(channelId),
+                                null,
+                                null,
+                                null,
+                                null)) {
             if (cursor != null && cursor.moveToNext()) {
                 Channel channel = Channel.fromCursor(cursor);
                 if (!channel.isBrowsable()) {
