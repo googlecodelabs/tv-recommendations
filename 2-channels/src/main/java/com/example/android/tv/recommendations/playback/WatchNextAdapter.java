@@ -14,18 +14,12 @@
 
 package com.example.android.tv.recommendations.playback;
 
-import android.content.ContentUris;
 import android.content.Context;
-import android.net.Uri;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.media.tv.TvContractCompat;
 import android.support.media.tv.WatchNextProgram;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Movie;
-import com.example.android.tv.recommendations.util.AppLinkHelper;
 
 /** Adds, updates, and removes the currently playing {@link Movie} from the "Watch Next" channel. */
 public class WatchNextAdapter {
@@ -46,70 +40,25 @@ public class WatchNextAdapter {
             return;
         }
 
-        WatchNextProgram program = createWatchNextProgram(channelId, entity, position, duration);
-        if (entity.getWatchNextId() < 1L) {
-            // Need to create program.
-            Uri watchNextProgramUri =
-                    context.getContentResolver()
-                            .insert(
-                                    TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                                    program.toContentValues());
-            long watchNextId = ContentUris.parseId(watchNextProgramUri);
-            entity.setWatchNextId(watchNextId);
-            MockDatabase.saveMovie(context, channelId, entity);
+        // TODO: step 13 add watch next program.
 
-            Log.d(TAG, "Watch Next program added: " + watchNextId);
-        } else {
-            // Update the progress and last engagement time of the program.
-            context.getContentResolver()
-                    .update(
-                            TvContractCompat.buildWatchNextProgramUri(entity.getWatchNextId()),
-                            program.toContentValues(),
-                            null,
-                            null);
-
-            Log.d(TAG, "Watch Next program updated: " + entity.getWatchNextId());
-        }
     }
 
     @NonNull
     private WatchNextProgram createWatchNextProgram(
             long channelId, Movie movie, long position, long duration) {
-        Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
-
-        Uri intentUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId(), position);
-
-        String title = movie.getTitle();
-
-        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_MOVIE)
-                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                .setLastEngagementTimeUtcMillis(System.currentTimeMillis())
-                .setLastPlaybackPositionMillis((int) position)
-                .setDurationMillis((int) duration)
-                .setTitle(title)
-                .setDescription(movie.getDescription())
-                .setPosterArtUri(posterArtUri)
-                .setIntentUri(intentUri);
-
-        return builder.build();
+        // TODO: step 14 convert movie
+        return null;
     }
 
     public void removeFromWatchNext(Context context, long channelId, long movieId) {
-
         Movie movie = MockDatabase.findMovieById(context, channelId, movieId);
         if (movie == null || movie.getWatchNextId() < 1L) {
             Log.d(TAG, "No program to remove from watch next.");
             return;
         }
 
-        int rows =
-                context.getContentResolver()
-                        .delete(
-                                TvContractCompat.buildWatchNextProgramUri(movie.getWatchNextId()),
-                                null,
-                                null);
-        Log.d(TAG, String.format("Deleted %d programs(s) from watch next", rows));
+        // TODO: step 16 remove program
 
         // Sync our records with the system; remove reference to watch next program.
         movie.setWatchNextId(-1);

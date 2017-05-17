@@ -35,7 +35,6 @@ import android.support.media.tv.Channel;
 import android.support.media.tv.ChannelLogoUtils;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.SyncChannelJobService;
 import com.example.android.tv.recommendations.SyncProgramsJobService;
 import com.example.android.tv.recommendations.model.Subscription;
@@ -174,6 +173,7 @@ public class TvUtil {
      * @param channelId for the channel to listen for changes.
      */
     public static void scheduleSyncingProgramsForChannel(Context context, long channelId) {
+        // TODO: step 4 schedule a job
         ComponentName componentName = new ComponentName(context, SyncProgramsJobService.class);
 
         JobInfo.Builder builder =

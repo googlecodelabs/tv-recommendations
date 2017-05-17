@@ -14,10 +14,8 @@
 package com.example.android.tv.recommendations.model;
 
 import android.content.Context;
-
 import com.example.android.tv.recommendations.R;
 import com.example.android.tv.recommendations.util.AppLinkHelper;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

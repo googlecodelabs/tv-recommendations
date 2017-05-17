@@ -15,27 +15,20 @@ package com.example.android.tv.recommendations;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
-import android.support.media.tv.Channel;
 import android.support.media.tv.PreviewProgram;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.model.MockDatabase;
-import com.example.android.tv.recommendations.model.MockMovieService;
 import com.example.android.tv.recommendations.model.Movie;
 import com.example.android.tv.recommendations.model.Subscription;
-import com.example.android.tv.recommendations.util.AppLinkHelper;
 import com.example.android.tv.recommendations.util.TvUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -109,111 +102,28 @@ public class SyncProgramsJobService extends JobService {
         Log.d(TAG, "Sync programs for channel: " + channelId);
         List<Movie> movies = new ArrayList<>(initialMovies);
 
-        try (Cursor cursor =
-                     getContentResolver()
-                             .query(
-                                     TvContractCompat.buildChannelUri(channelId),
-                                     null,
-                                     null,
-                                     null,
-                                     null)) {
-            if (cursor != null && cursor.moveToNext()) {
-                Channel channel = Channel.fromCursor(cursor);
-                if (!channel.isBrowsable()) {
-                    Log.d(TAG, "Channel is not browsable: " + channelId);
-                    deletePrograms(channelId, movies);
-                } else {
-                    Log.d(TAG, "Channel is browsable: " + channelId);
-                    if (movies.isEmpty()) {
-                        movies = createPrograms(channelId, MockMovieService.getList());
-                    } else {
-                        movies = updatePrograms(channelId, movies);
-                    }
-                    MockDatabase.saveMovies(getApplicationContext(), channelId, movies);
-                }
-            }
-        }
+        // TODO: step 5 check if visible.
+
     }
 
     private List<Movie> createPrograms(long channelId, List<Movie> movies) {
-
-        List<Movie> moviesAdded = new ArrayList<>(movies.size());
-        for (Movie movie : movies) {
-            PreviewProgram previewProgram = buildProgram(channelId, movie);
-
-            Uri programUri =
-                    getContentResolver()
-                            .insert(
-                                    TvContractCompat.PreviewPrograms.CONTENT_URI,
-                                    previewProgram.toContentValues());
-            long programId = ContentUris.parseId(programUri);
-            Log.d(TAG, "Inserted new program: " + programId);
-            movie.setProgramId(programId);
-            moviesAdded.add(movie);
-        }
-
-        return moviesAdded;
+        // TODO: step 8 add programs.
+        return Collections.emptyList();
     }
 
-    private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
-
-        // By getting a fresh list, we should see a visible change in the home screen.
-        List<Movie> updateMovies = MockMovieService.getFreshList();
-        for (int i = 0; i < movies.size(); ++i) {
-            Movie old = movies.get(i);
-            Movie update = updateMovies.get(i);
-            long programId = old.getProgramId();
-
-            getContentResolver()
-                    .update(
-                            TvContractCompat.buildPreviewProgramUri(programId),
-                            buildProgram(channelId, update).toContentValues(),
-                            null,
-                            null);
-            Log.d(TAG, "Updated program: " + programId);
-            update.setProgramId(programId);
-        }
-
-        return updateMovies;
+    private List<Movie> updatePrograms(long channelId, List<Movie> programs) {
+        // TODO: step 9 update programs.
+        return Collections.emptyList();
     }
 
     private void deletePrograms(long channelId, List<Movie> movies) {
-        if (movies.isEmpty()) {
-            return;
-        }
-
-        int count = 0;
-        for (Movie movie : movies) {
-            count +=
-                    getContentResolver()
-                            .delete(
-                                    TvContractCompat.buildPreviewProgramUri(movie.getProgramId()),
-                                    null,
-                                    null);
-        }
-        Log.d(TAG, "Deleted " + count + " programs for  channel " + channelId);
-
-        // Remove our local records to stay in sync with the TV Provider.
-        MockDatabase.removeMovies(getApplicationContext(), channelId);
+        // TODO: step 10 delete programs.
     }
 
     @NonNull
     private PreviewProgram buildProgram(long channelId, Movie movie) {
-        Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
-
-        Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
-
-        String title = movie.getTitle();
-
-        PreviewProgram.Builder builder = new PreviewProgram.Builder();
-        builder.setChannelId(channelId)
-                .setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
-                .setTitle(title)
-                .setDescription(movie.getDescription())
-                .setPosterArtUri(posterArtUri)
-                .setPreviewVideoUri(Uri.parse(movie.getVideoUrl()))
-                .setIntentUri(appLinkUri);
-        return builder.build();
+        // TODO: step 7 convert movie to program
+        return null;
     }
 
     private class SyncProgramsTask extends AsyncTask<Long, Void, Boolean> {

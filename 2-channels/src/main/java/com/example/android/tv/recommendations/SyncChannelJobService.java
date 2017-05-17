@@ -15,16 +15,21 @@ package com.example.android.tv.recommendations;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.tv.TvContract;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.media.tv.Channel;
+import android.support.media.tv.ChannelLogoUtils;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
-
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.MockMovieService;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.util.TvUtil;
-
 import java.util.List;
 
 /**
@@ -81,8 +86,9 @@ public class SyncChannelJobService extends JobService {
                 // Create subscriptions from mocked source.
                 subscriptions = MockMovieService.createUniversalSubscriptions(mContext);
                 for (Subscription subscription : subscriptions) {
-                    long channelId = TvUtil.createChannel(mContext, subscription);
+                    long channelId = createChannel(mContext, subscription);
                     subscription.setChannelId(channelId);
+                    // TODO: step 3 make the channel visible
                     TvContractCompat.requestChannelBrowsable(mContext, channelId);
                 }
 
@@ -95,6 +101,69 @@ public class SyncChannelJobService extends JobService {
                 TvUtil.scheduleSyncingProgramsForChannel(mContext, channel.getChannelId());
             }
             return true;
+        }
+
+        private long createChannel(Context context, Subscription subscription) {
+            // TODO: step 2 create a channel
+            // Checks if our subscription has been added to the channels before.
+            long channelId = getChannelIdFromTvProvider(context, subscription);
+            if (channelId != -1L) {
+                return channelId;
+            }
+
+            // Create the channel since it has not been added to the TV Provider.
+            Uri appLinkIntentUri = Uri.parse(subscription.getAppLinkIntentUri());
+
+            Channel.Builder builder = new Channel.Builder();
+            builder.setType(TvContractCompat.Channels.TYPE_PREVIEW)
+                    .setDisplayName(subscription.getName())
+                    .setDescription(subscription.getDescription())
+                    .setAppLinkIntentUri(appLinkIntentUri);
+
+            Log.d(TAG, "Creating channel: " + subscription.getName());
+            Uri channelUrl =
+                    context.getContentResolver()
+                            .insert(
+                                    TvContractCompat.Channels.CONTENT_URI,
+                                    builder.build().toContentValues());
+
+            Log.d(TAG, "channel insert at " + channelUrl);
+            channelId = ContentUris.parseId(channelUrl);
+            Log.d(TAG, "channel id " + channelId);
+
+            Bitmap bitmap = TvUtil.convertToBitmap(context, subscription.getChannelLogo());
+            ChannelLogoUtils.storeChannelLogo(context, channelId, bitmap);
+
+            return channelId;
+        }
+
+        private long getChannelIdFromTvProvider(Context context, Subscription subscription) {
+            // TODO: step 1 query for channel
+            Cursor cursor =
+                    context.getContentResolver()
+                            .query(
+                                    TvContractCompat.Channels.CONTENT_URI,
+                                    new String[] {
+                                        TvContractCompat.Channels._ID,
+                                        TvContract.Channels.COLUMN_DISPLAY_NAME
+                                    },
+                                    null,
+                                    null,
+                                    null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Channel channel = Channel.fromCursor(cursor);
+                    if (subscription.getName().equals(channel.getDisplayName())) {
+                        Log.d(
+                                TAG,
+                                "Channel already exists. Returning channel "
+                                        + channel.getId()
+                                        + " from TV Provider.");
+                        return channel.getId();
+                    }
+                } while (cursor.moveToNext());
+            }
+            return -1L;
         }
     }
 }

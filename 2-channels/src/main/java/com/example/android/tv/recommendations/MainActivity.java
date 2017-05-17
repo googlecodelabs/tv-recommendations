@@ -23,7 +23,8 @@ import android.widget.Button;
 import com.example.android.tv.recommendations.model.MockDatabase;
 import com.example.android.tv.recommendations.model.Subscription;
 import com.example.android.tv.recommendations.util.TvUtil;
-
+import java.util.Arrays;
+import java.util.List;
 
 /*
  * Displays subscriptions that can be added to the main launcher's channels.
@@ -84,8 +85,20 @@ public class MainActivity extends Activity {
 
         @Override
         protected Long doInBackground(Subscription... varArgs) {
-            // TODO:STEP1 Create the channel in the provider.
-            return -1L;
+            List<Subscription> subscriptions = Arrays.asList(varArgs);
+            if (subscriptions.size() != 1) {
+                return -1L;
+            }
+            Subscription subscription = subscriptions.get(0);
+            // TODO: step 17 create channel. Replace declaration with code from code lab.
+            long channelId = -1L;
+
+            subscription.setChannelId(channelId);
+            MockDatabase.saveSubscription(mContext, subscription);
+            // Scheduler listen on channel's uri. Updates after the user interacts with the system
+            // dialog.
+            TvUtil.scheduleSyncingProgramsForChannel(getApplicationContext(), channelId);
+            return channelId;
         }
 
         @Override
@@ -96,14 +109,14 @@ public class MainActivity extends Activity {
     }
 
     private void promptUserToDisplayChannel(long channelId) {
-        // TODO:STEP2 Create intent and start activity for result.
+        // TODO: step 18 prompt user.
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // TODO:STEP3 Handle user's response.
+        // TODO step 19 handle response
 
     }
 }
