@@ -33,41 +33,6 @@ public final class MockDatabase {
     }
 
     /**
-     * Creates a list of subscriptions that every users should have.
-     *
-     * @param context used for accessing shared preferences.
-     * @return a list of default subscriptions.
-     */
-    public static List<Subscription> createUniversalSubscriptions(Context context) {
-
-        String newForYou = context.getString(R.string.new_for_you);
-        Subscription flagshipSubscription =
-                Subscription.createSubscription(
-                        newForYou,
-                        context.getString(R.string.new_for_you_description),
-                        AppLinkHelper.buildBrowseUri(newForYou).toString(),
-                        R.drawable.ic_movie_blue_80dp);
-
-        String trendingVideos = context.getString(R.string.trending_videos);
-        Subscription videoSubscription =
-                Subscription.createSubscription(
-                        trendingVideos,
-                        context.getString(R.string.trending_videos_description),
-                        AppLinkHelper.buildBrowseUri(trendingVideos).toString(),
-                        R.drawable.ic_movie_blue_80dp);
-
-        String featuredFilms = context.getString(R.string.featured_films);
-        Subscription filmsSubscription =
-                Subscription.createSubscription(
-                        featuredFilms,
-                        context.getString(R.string.featured_films_description),
-                        AppLinkHelper.buildBrowseUri(featuredFilms).toString(),
-                        R.drawable.ic_video_library_blue_80dp);
-
-        return Arrays.asList(flagshipSubscription, videoSubscription, filmsSubscription);
-    }
-
-    /**
      * Returns a subscription to mock content representing tv shows.
      *
      * @param context used for accessing shared preferences.
