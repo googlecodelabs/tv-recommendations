@@ -1,1 +1,1 @@
-include ':0-base', ':1-channels', ':2-programs', ':3-watch-next', ':4-opt-in-channels', ':5-final'
+include ':1-base', ':2-channels', ':3-programs', ':4-watch-next', ':5-opt-in-channels', ':6-final'
