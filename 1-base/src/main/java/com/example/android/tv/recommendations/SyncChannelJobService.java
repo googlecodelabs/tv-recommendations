@@ -15,8 +15,16 @@ package com.example.android.tv.recommendations;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.media.tv.TvContract;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
+import android.support.media.tv.Channel;
+import android.support.media.tv.ChannelLogoUtils;
 import android.support.media.tv.TvContractCompat;
 import android.util.Log;
 
@@ -81,9 +89,10 @@ public class SyncChannelJobService extends JobService {
                 // Create subscriptions from mocked source.
                 subscriptions = MockMovieService.createUniversalSubscriptions(mContext);
                 for (Subscription subscription : subscriptions) {
-                    long channelId = TvUtil.createChannel(mContext, subscription);
+                    long channelId = createChannel(mContext, subscription);
                     subscription.setChannelId(channelId);
-                    TvContractCompat.requestChannelBrowsable(mContext, channelId);
+                    // TODO: step 3 make the channel visible
+
                 }
 
                 MockDatabase.saveSubscriptions(mContext, subscriptions);
@@ -95,6 +104,16 @@ public class SyncChannelJobService extends JobService {
                 TvUtil.scheduleSyncingProgramsForChannel(mContext, channel.getChannelId());
             }
             return true;
+        }
+
+        private long createChannel(Context context, Subscription subscription) {
+            // TODO: step 2 create a channel
+            return -1;
+        }
+
+        private long getChannelIdFromTvProvider(Context context, Subscription subscription) {
+            // TODO: step 1 query for channel
+            return -1L;
         }
     }
 }

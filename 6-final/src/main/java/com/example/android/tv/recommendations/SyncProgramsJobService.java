@@ -37,8 +37,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A job service that will create a default channel for an application. Once a default channel is
- * created, it will pre-fill in some programs.
+ * Syncs programs for a channel. A channel id is required to be passed via the {@link
+ * JobParameters}. This service is scheduled to listen to changes to a channel. Once the job
+ * completes, it will reschedule itself to listen for the next change to the channel. See {@link
+ * TvUtil#scheduleSyncingProgramsForChannel(Context, long)} for more details about the scheduling.
  */
 public class SyncProgramsJobService extends JobService {
 

@@ -174,27 +174,8 @@ public class TvUtil {
      * @param channelId for the channel to listen for changes.
      */
     public static void scheduleSyncingProgramsForChannel(Context context, long channelId) {
-        ComponentName componentName = new ComponentName(context, SyncProgramsJobService.class);
+        // TODO: step 4 schedule a job
 
-        JobInfo.Builder builder =
-                new JobInfo.Builder(getJobIdForChannelId(channelId), componentName);
-
-        JobInfo.TriggerContentUri triggerContentUri =
-                new JobInfo.TriggerContentUri(
-                        TvContractCompat.buildChannelUri(channelId),
-                        JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS);
-        builder.addTriggerContentUri(triggerContentUri);
-        builder.setTriggerContentMaxDelay(0L);
-        builder.setTriggerContentUpdateDelay(0L);
-
-        PersistableBundle bundle = new PersistableBundle();
-        bundle.putLong(TvContractCompat.EXTRA_CHANNEL_ID, channelId);
-        builder.setExtras(bundle);
-
-        JobScheduler scheduler =
-                (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        scheduler.cancel(getJobIdForChannelId(channelId));
-        scheduler.schedule(builder.build());
     }
 
     private static int getJobIdForChannelId(long channelId) {
