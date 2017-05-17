@@ -81,8 +81,10 @@ public class SyncChannelJobService extends JobService {
                 // Create subscriptions from mocked source.
                 subscriptions = MockMovieService.createUniversalSubscriptions(mContext);
                 for (Subscription subscription : subscriptions) {
+                    // TODO: step 1 and 2 refactored
                     long channelId = TvUtil.createChannel(mContext, subscription);
                     subscription.setChannelId(channelId);
+                    // TODO: step 3 make the channel visible
                     TvContractCompat.requestChannelBrowsable(mContext, channelId);
                 }
 

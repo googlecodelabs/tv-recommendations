@@ -119,13 +119,20 @@ public class SyncProgramsJobService extends JobService {
         return Collections.emptyList();
     }
 
-    private List<Movie> updatePrograms(long channelId, List<Movie> programs) {
+    private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
         // TODO: step 9 update programs.
         return Collections.emptyList();
     }
 
     private void deletePrograms(long channelId, List<Movie> movies) {
+        if (movies.isEmpty()) {
+            return;
+        }
+
         // TODO: step 10 delete programs.
+
+        // Remove our local records to stay in sync with the TV Provider.
+        MockDatabase.removeMovies(getApplicationContext(), channelId);
     }
 
     @NonNull

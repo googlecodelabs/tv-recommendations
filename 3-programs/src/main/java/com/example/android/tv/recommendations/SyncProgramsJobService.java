@@ -36,6 +36,7 @@ import com.example.android.tv.recommendations.util.TvUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -109,6 +110,7 @@ public class SyncProgramsJobService extends JobService {
         Log.d(TAG, "Sync programs for channel: " + channelId);
         List<Movie> movies = new ArrayList<>(initialMovies);
 
+        // TODO: step 5 check if visible.
         try (Cursor cursor =
                      getContentResolver()
                              .query(
@@ -136,7 +138,7 @@ public class SyncProgramsJobService extends JobService {
     }
 
     private List<Movie> createPrograms(long channelId, List<Movie> movies) {
-
+        // TODO: step 8 add programs.
         List<Movie> moviesAdded = new ArrayList<>(movies.size());
         for (Movie movie : movies) {
             PreviewProgram previewProgram = buildProgram(channelId, movie);
@@ -156,7 +158,7 @@ public class SyncProgramsJobService extends JobService {
     }
 
     private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
-
+        // TODO: step 9 update programs.
         // By getting a fresh list, we should see a visible change in the home screen.
         List<Movie> updateMovies = MockMovieService.getFreshList();
         for (int i = 0; i < movies.size(); ++i) {
@@ -182,6 +184,7 @@ public class SyncProgramsJobService extends JobService {
             return;
         }
 
+        // TODO: step 10 delete programs.
         int count = 0;
         for (Movie movie : movies) {
             count +=
@@ -199,20 +202,21 @@ public class SyncProgramsJobService extends JobService {
 
     @NonNull
     private PreviewProgram buildProgram(long channelId, Movie movie) {
+        // TODO: step 7 convert movie to program
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
 
-        Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
+        Uri intentUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
 
         String title = movie.getTitle();
 
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
         builder.setChannelId(channelId)
-                .setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
+                .setType(TvContractCompat.PreviewProgramColumns.TYPE_MOVIE)
                 .setTitle(title)
                 .setDescription(movie.getDescription())
                 .setPosterArtUri(posterArtUri)
                 .setPreviewVideoUri(Uri.parse(movie.getVideoUrl()))
-                .setIntentUri(appLinkUri);
+                .setIntentUri(intentUri);
         return builder.build();
     }
 
