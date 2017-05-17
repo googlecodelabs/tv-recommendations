@@ -46,70 +46,26 @@ public class WatchNextAdapter {
             return;
         }
 
-        WatchNextProgram program = createWatchNextProgram(channelId, entity, position, duration);
-        if (entity.getWatchNextId() < 1L) {
-            // Need to create program.
-            Uri watchNextProgramUri =
-                    context.getContentResolver()
-                            .insert(
-                                    TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                                    program.toContentValues());
-            long watchNextId = ContentUris.parseId(watchNextProgramUri);
-            entity.setWatchNextId(watchNextId);
-            MockDatabase.saveMovie(context, channelId, entity);
+        // TODO: step 13 add watch next program.
 
-            Log.d(TAG, "Watch Next program added: " + watchNextId);
-        } else {
-            // Update the progress and last engagement time of the program.
-            context.getContentResolver()
-                    .update(
-                            TvContractCompat.buildWatchNextProgramUri(entity.getWatchNextId()),
-                            program.toContentValues(),
-                            null,
-                            null);
-
-            Log.d(TAG, "Watch Next program updated: " + entity.getWatchNextId());
-        }
     }
 
     @NonNull
     private WatchNextProgram createWatchNextProgram(
             long channelId, Movie movie, long position, long duration) {
-        Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
-
-        Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId(), position);
-
-        String title = movie.getTitle();
-
-        WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
-                .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                .setLastEngagementTimeUtcMillis(SystemClock.currentThreadTimeMillis())
-                .setLastPlaybackPositionMillis((int) position)
-                .setDurationMillis((int) duration)
-                .setTitle(title)
-                .setDescription(movie.getDescription())
-                .setPosterArtUri(posterArtUri)
-                .setIntentUri(appLinkUri);
-
-        return builder.build();
+        // TODO: step 14 convert movie
+        return null;
     }
 
     public void removeFromWatchNext(Context context, long channelId, long movieId) {
-
         Movie movie = MockDatabase.findMovieById(context, channelId, movieId);
         if (movie == null || movie.getWatchNextId() < 1L) {
             Log.d(TAG, "No program to remove from watch next.");
             return;
         }
 
-        int rows =
-                context.getContentResolver()
-                        .delete(
-                                TvContractCompat.buildWatchNextProgramUri(movie.getWatchNextId()),
-                                null,
-                                null);
-        Log.d(TAG, String.format("Deleted %d programs(s) from watch next", rows));
+        // TODO: step 16 remove program
+
 
         // Sync our records with the system; remove reference to watch next program.
         movie.setWatchNextId(-1);

@@ -76,20 +76,20 @@ public class WatchNextAdapter {
             long channelId, Movie movie, long position, long duration) {
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
 
-        Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId(), position);
+        Uri intentUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId(), position);
 
         String title = movie.getTitle();
 
         WatchNextProgram.Builder builder = new WatchNextProgram.Builder();
-        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
+        builder.setType(TvContractCompat.PreviewProgramColumns.TYPE_MOVIE)
                 .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
-                .setLastEngagementTimeUtcMillis(SystemClock.currentThreadTimeMillis())
+                .setLastEngagementTimeUtcMillis(System.currentTimeMillis())
                 .setLastPlaybackPositionMillis((int) position)
                 .setDurationMillis((int) duration)
                 .setTitle(title)
                 .setDescription(movie.getDescription())
                 .setPosterArtUri(posterArtUri)
-                .setIntentUri(appLinkUri);
+                .setIntentUri(intentUri);
 
         return builder.build();
     }
