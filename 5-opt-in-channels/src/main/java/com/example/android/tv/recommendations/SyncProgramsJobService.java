@@ -200,18 +200,16 @@ public class SyncProgramsJobService extends JobService {
     @NonNull
     private PreviewProgram buildProgram(long channelId, Movie movie) {
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
-
         Uri appLinkUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
-
-        String title = movie.getTitle();
+        Uri previewVideoUri = Uri.parse(movie.getVideoUrl());
 
         PreviewProgram.Builder builder = new PreviewProgram.Builder();
         builder.setChannelId(channelId)
                 .setType(TvContractCompat.PreviewProgramColumns.TYPE_CLIP)
-                .setTitle(title)
+                .setTitle(movie.getTitle())
                 .setDescription(movie.getDescription())
                 .setPosterArtUri(posterArtUri)
-                .setPreviewVideoUri(Uri.parse(movie.getVideoUrl()))
+                .setPreviewVideoUri(previewVideoUri)
                 .setIntentUri(appLinkUri);
         return builder.build();
     }
