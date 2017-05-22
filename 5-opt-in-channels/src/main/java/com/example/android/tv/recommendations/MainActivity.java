@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
                 return -1L;
             }
             Subscription subscription = subscriptions.get(0);
-            // TODO: step 17 create channel. Replace declaration with code from code lab.
+            // TODO: step 16 create channel. Replace declaration with code from code lab.
             long channelId = TvUtil.createChannel(mContext, subscription);
 
             subscription.setChannelId(channelId);
@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
     }
 
     private void promptUserToDisplayChannel(long channelId) {
-        // TODO: step 18 prompt user.
+        // TODO: step 17 prompt user.
         Intent intent = new Intent(TvContractCompat.ACTION_REQUEST_CHANNEL_BROWSABLE);
         intent.putExtra(TvContractCompat.EXTRA_CHANNEL_ID, channelId);
         try {
@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // TODO step 19 handle response
+        // TODO step 18 handle response
         if (resultCode == RESULT_OK) {
             Toast.makeText(this, R.string.channel_added, Toast.LENGTH_LONG).show();
         } else {

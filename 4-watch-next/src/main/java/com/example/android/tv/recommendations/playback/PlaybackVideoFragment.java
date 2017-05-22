@@ -59,21 +59,21 @@ public class PlaybackVideoFragment extends VideoFragment {
                     WatchNextAdapter watchNextAdapter = new WatchNextAdapter();
 
                     @Override
-                    public void onPlayCompleted(PlaybackGlue glue) {
-                        super.onPlayCompleted(glue);
-                        // TODO: step 12 remove watch next.
-                        watchNextAdapter.removeFromWatchNext(
-                                getContext(), mChannelId, movie.getId());
-                    }
-
-                    @Override
                     public void onPlayStateChanged(PlaybackGlue glue) {
                         super.onPlayStateChanged(glue);
-                        // TODO: step 11 update progress.
+                        // TODO: step 10 update progress.
                         long position = mMediaPlayerGlue.getCurrentPosition();
                         long duration = mMediaPlayerGlue.getDuration();
                         watchNextAdapter.updateProgress(
                                 getContext(), mChannelId, movie, position, duration);
+                    }
+
+                    @Override
+                    public void onPlayCompleted(PlaybackGlue glue) {
+                        super.onPlayCompleted(glue);
+                        // TODO: step 11 remove watch next.
+                        watchNextAdapter.removeFromWatchNext(
+                                getContext(), mChannelId, movie.getId());
                     }
                 });
 

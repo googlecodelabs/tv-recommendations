@@ -41,14 +41,14 @@ public class WatchNextAdapter {
             return;
         }
 
-        // TODO: step 13 add watch next program.
+        // TODO: step 12 add watch next program.
 
     }
 
     @NonNull
     private WatchNextProgram createWatchNextProgram(
             long channelId, Movie movie, long position, long duration) {
-        // TODO: step 14 convert movie
+        // TODO: step 13 convert movie
         return null;
     }
 
@@ -59,7 +59,7 @@ public class WatchNextAdapter {
             return;
         }
 
-        // TODO: step 16 remove program
+        // TODO: step 15 remove program
 
         // Sync our records with the system; remove reference to watch next program.
         movie.setWatchNextId(-1);

@@ -138,7 +138,7 @@ public class SyncProgramsJobService extends JobService {
     }
 
     private List<Movie> createPrograms(long channelId, List<Movie> movies) {
-        // TODO: step 8 add programs.
+        // TODO: step 7 add programs.
         List<Movie> moviesAdded = new ArrayList<>(movies.size());
         for (Movie movie : movies) {
             PreviewProgram previewProgram = buildProgram(channelId, movie);
@@ -158,7 +158,7 @@ public class SyncProgramsJobService extends JobService {
     }
 
     private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
-        // TODO: step 9 update programs.
+        // TODO: step 8 update programs.
         // By getting a fresh list, we should see a visible change in the home screen.
         List<Movie> updateMovies = MockMovieService.getFreshList();
         for (int i = 0; i < movies.size(); ++i) {
@@ -184,7 +184,7 @@ public class SyncProgramsJobService extends JobService {
             return;
         }
 
-        // TODO: step 10 delete programs.
+        // TODO: step 9 delete programs.
         int count = 0;
         for (Movie movie : movies) {
             count +=
@@ -202,7 +202,7 @@ public class SyncProgramsJobService extends JobService {
 
     @NonNull
     private PreviewProgram buildProgram(long channelId, Movie movie) {
-        // TODO: step 7 convert movie to program
+        // TODO: step 6 convert movie to program
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
         Uri intentUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId());
         Uri previewVideoUri = Uri.parse(movie.getVideoUrl());

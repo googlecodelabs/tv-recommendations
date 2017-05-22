@@ -45,7 +45,7 @@ public class WatchNextAdapter {
             return;
         }
 
-        // TODO: step 13 add watch next program.
+        // TODO: step 12 add watch next program.
         WatchNextProgram program = createWatchNextProgram(channelId, entity, position, duration);
         if (entity.getWatchNextId() < 1L) {
             // Need to create program.
@@ -60,7 +60,7 @@ public class WatchNextAdapter {
 
             Log.d(TAG, "Watch Next program added: " + watchNextId);
         } else {
-            // TODO: step 15 update program.
+            // TODO: step 14 update program.
             // Update the progress and last engagement time of the program.
             context.getContentResolver()
                     .update(
@@ -76,7 +76,7 @@ public class WatchNextAdapter {
     @NonNull
     private WatchNextProgram createWatchNextProgram(
             long channelId, Movie movie, long position, long duration) {
-        // TODO: step 14 convert movie
+        // TODO: step 13 convert movie
         Uri posterArtUri = Uri.parse(movie.getCardImageUrl());
         Uri intentUri = AppLinkHelper.buildPlaybackUri(channelId, movie.getId(), position);
 
@@ -100,7 +100,7 @@ public class WatchNextAdapter {
             return;
         }
 
-        // TODO: step 16 remove program
+        // TODO: step 15 remove program
         int rows =
                 context.getContentResolver()
                         .delete(

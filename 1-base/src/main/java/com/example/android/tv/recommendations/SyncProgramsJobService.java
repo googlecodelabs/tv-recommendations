@@ -115,12 +115,12 @@ public class SyncProgramsJobService extends JobService {
     }
 
     private List<Movie> createPrograms(long channelId, List<Movie> movies) {
-        // TODO: step 8 add programs.
+        // TODO: step 7 add programs.
         return Collections.emptyList();
     }
 
     private List<Movie> updatePrograms(long channelId, List<Movie> movies) {
-        // TODO: step 9 update programs.
+        // TODO: step 8 update programs.
         return Collections.emptyList();
     }
 
@@ -129,7 +129,7 @@ public class SyncProgramsJobService extends JobService {
             return;
         }
 
-        // TODO: step 10 delete programs.
+        // TODO: step 9 delete programs.
 
         // Remove our local records to stay in sync with the TV Provider.
         MockDatabase.removeMovies(getApplicationContext(), channelId);
@@ -137,7 +137,7 @@ public class SyncProgramsJobService extends JobService {
 
     @NonNull
     private PreviewProgram buildProgram(long channelId, Movie movie) {
-        // TODO: step 7 convert movie to program
+        // TODO: step 6 convert movie to program
         return null;
     }
 
